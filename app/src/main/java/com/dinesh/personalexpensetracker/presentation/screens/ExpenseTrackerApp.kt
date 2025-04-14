@@ -1,7 +1,10 @@
 package com.dinesh.personalexpensetracker.presentation.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -41,6 +44,7 @@ fun ExpenseTrackerApp(viewModel: ExpenseViewModel = hiltViewModel()) {
             modifier = Modifier
                 .padding(paddingValues)
                 .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             Text(
                 text = "Expense Tracker",
@@ -104,6 +108,60 @@ fun ExpenseTrackerApp(viewModel: ExpenseViewModel = hiltViewModel()) {
             }
 
             ExpenseChart(expenses)
+
+            if (expenses.isNotEmpty()) {
+                val categoryData = getCategoryWiseData(expenses)
+                val pieColors = listOf(
+                    MaterialTheme.colorScheme.primary,
+                    MaterialTheme.colorScheme.secondary,
+                    MaterialTheme.colorScheme.tertiary,
+                    MaterialTheme.colorScheme.error,
+                    MaterialTheme.colorScheme.inversePrimary,
+                    MaterialTheme.colorScheme.outline
+                )
+
+                val labeledData = categoryData.entries.mapIndexed { index, entry ->
+                    Triple(entry.key, entry.value.toDouble(), pieColors[index % pieColors.size])
+                }
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Expense by Category",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 12.dp)
+                        )
+
+                        // Centered PieChart
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        PieChart(
+                            data = labeledData.associate { it.first to it.second },
+                            radiusOuter = 48.dp,
+                            chartBarWidth = 25.dp,
+                            animDuration = 1200
+                        )
+
+
+                    }
+                }
+
+            }
         }
     }
 
@@ -142,4 +200,10 @@ fun calculateFilteredAmount(expenses: List<Expense>, filter: String): Double {
         }
         else -> expenses.sumOf { it.amount }
     }
+}
+
+fun getCategoryWiseData(expenses: List<Expense>): Map<String, Double> {
+    return expenses
+        .groupBy { it.category }
+        .mapValues { entry -> entry.value.sumOf { it.amount } }
 }
