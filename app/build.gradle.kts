@@ -33,11 +33,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -71,22 +71,35 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     //Room
-    implementation("androidx.room:room-runtime:2.7.0")
-    kapt("androidx.room:room-compiler:2.7.0")
-    implementation("androidx.room:room-ktx:2.7.0")
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     //Datastore
-    implementation("androidx.datastore:datastore-preferences:1.1.4")
+    implementation(libs.androidx.datastore.preferences)
 
     //Splash Api
     implementation(libs.androidx.core.splashscreen)
 
-    //Compose Navigation
-    implementation("androidx.navigation:navigation-compose:2.8.9")
+    /*material library*/
+    implementation(libs.androidx.material)
 
-//    Dagger Hilt
+    val nav_version = "2.7.7"
+
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.4")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
+
+    //    Dagger Hilt
     implementation("com.google.dagger:hilt-android:2.50")
-    kapt("com.google.dagger:hilt-android-compiler:2.50")
     kapt("com.google.dagger:hilt-compiler:2.50")
+    kapt("com.google.dagger:hilt-android-compiler:2.50")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 }
