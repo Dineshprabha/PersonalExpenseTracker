@@ -16,13 +16,18 @@ import com.dinesh.personalexpensetracker.data.model.Expense
 
 @Composable
 fun ExpenseChart(expenses: List<Expense>) {
-    Card(Modifier.fillMaxWidth().height(200.dp)) {
+    Card(
+        Modifier
+            .fillMaxWidth()
+            .height(200.dp)) {
         val grouped = expenses.groupBy { it.category }
         Column(Modifier.padding(16.dp)) {
             Text("Expenses by Category", fontWeight = FontWeight.Bold)
             grouped.forEach { (category, items) ->
                 Row(
-                    Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(category)

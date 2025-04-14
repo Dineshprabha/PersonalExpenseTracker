@@ -24,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
@@ -34,9 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.dinesh.personalexpensetracker.ui.theme.Blue40
 import com.dinesh.personalexpensetracker.ui.theme.Green40
 import com.dinesh.personalexpensetracker.ui.theme.Orange40
-import com.dinesh.personalexpensetracker.ui.theme.Purple40
 import com.dinesh.personalexpensetracker.ui.theme.Purple80
-import com.dinesh.personalexpensetracker.ui.theme.PurpleGrey40
 import com.dinesh.personalexpensetracker.ui.theme.Red40
 import com.dinesh.personalexpensetracker.ui.theme.Teal40
 
