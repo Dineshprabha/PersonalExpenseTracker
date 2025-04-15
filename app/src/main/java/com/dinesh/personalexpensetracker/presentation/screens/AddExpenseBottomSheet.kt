@@ -1,15 +1,20 @@
 package com.dinesh.personalexpensetracker.presentation.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
@@ -48,15 +53,25 @@ fun AddExpenseBottomSheet(onDismiss: () -> Unit, onSave: (Expense) -> Unit) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .clip(MaterialTheme.shapes.extraLarge)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp)
-                .clip(MaterialTheme.shapes.large)
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp)
+                .verticalScroll(rememberScrollState()) // Vertical scroll added
         ) {
-            Text("Add Expense", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(8.dp))
+            Text(
+                "Add Expense",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
 
-            LazyRow {
+            Spacer(Modifier.height(12.dp))
+
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(vertical = 8.dp)
+            ) {
                 items(categories) { category ->
                     val isSelected = category == selectedCategory
                     AssistChip(
@@ -64,11 +79,9 @@ fun AddExpenseBottomSheet(onDismiss: () -> Unit, onSave: (Expense) -> Unit) {
                         label = {
                             Text(
                                 text = category,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                             )
                         },
-                        modifier = Modifier.padding(horizontal = 4.dp),
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
                             labelColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
@@ -77,46 +90,71 @@ fun AddExpenseBottomSheet(onDismiss: () -> Unit, onSave: (Expense) -> Unit) {
                 }
             }
 
-            Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = amount,
                 onValueChange = { amount = it },
                 label = { Text("Amount") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                singleLine = true
             )
 
-            Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
                 label = { Text("Description") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                singleLine = true
             )
 
-            Spacer(Modifier.height(8.dp))
-            DatePicker(state = datePickerState)
+            Text(
+                "Pick a Date",
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
 
-            Spacer(Modifier.height(16.dp))
+            DateSelector(
+                selectedDate = selectedDate,
+                onDateSelected = { selectedDate = it }
+            )
+
+            Spacer(Modifier.height(12.dp))
+
             Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                OutlinedButton(onClick = onDismiss) { Text("Cancel") }
-                Button(onClick = {
-                    val millis = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-                    selectedDate = Date(millis)
-                    onSave(
-                        Expense(
-                            amount = amount.toDoubleOrNull() ?: 0.0,
-                            category = selectedCategory,
-                            description = description,
-                            date = selectedDate
+                OutlinedButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+
+                Button(
+                    onClick = {
+                        val millis = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                        selectedDate = Date(millis)
+                        onSave(
+                            Expense(
+                                amount = amount.toDoubleOrNull() ?: 0.0,
+                                category = selectedCategory,
+                                description = description,
+                                date = selectedDate
+                            )
                         )
-                    )
-                }) { Text("Add") }
+                    },
+                    enabled = amount.isNotBlank() && amount.toDoubleOrNull() != null
+                ) {
+                    Text("Add")
+                }
             }
         }
     }
 }
+
 
 

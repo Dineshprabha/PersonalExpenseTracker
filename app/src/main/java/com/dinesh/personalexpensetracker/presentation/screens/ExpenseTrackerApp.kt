@@ -1,36 +1,76 @@
 package com.dinesh.personalexpensetracker.presentation.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.dinesh.personalexpensetracker.presentation.viewmodel.ExpenseViewModel
-import java.util.*
 import com.dinesh.personalexpensetracker.data.model.Expense
+import com.dinesh.personalexpensetracker.presentation.viewmodel.ExpenseViewModel
+import java.util.Calendar
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseTrackerApp(navController: NavController, viewModel: ExpenseViewModel = hiltViewModel()) {
+fun ExpenseTrackerApp(
+    navController: NavController,
+    viewModel: ExpenseViewModel = hiltViewModel()
+) {
     val expenses by viewModel.expenses.collectAsState()
     val showDialog = remember { mutableStateOf(false) }
 
-    // State for filter selection
-    val filterOptions = listOf("Day", "Week", "Month", "Year")
+    val filterOptions = listOf("Week", "Month", "Year")
     var selectedFilter by remember { mutableStateOf("Month") }
     var isDropdownExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Expense Tracker",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.primary
+                )
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showDialog.value = true },
@@ -42,22 +82,15 @@ fun ExpenseTrackerApp(navController: NavController, viewModel: ExpenseViewModel 
             }
         }
     ) { paddingValues ->
+
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = "Expense Tracker",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                ),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
 
-            // Filter Dropdown
+            // Filter Dropdown Row
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -65,7 +98,7 @@ fun ExpenseTrackerApp(navController: NavController, viewModel: ExpenseViewModel 
                     .clickable { isDropdownExpanded = true }
             ) {
                 Text(
-                    text = "Showing: $selectedFilter",
+                    text = " $selectedFilter",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -86,7 +119,7 @@ fun ExpenseTrackerApp(navController: NavController, viewModel: ExpenseViewModel 
                 }
             }
 
-            // Filtered amount
+            // Filtered Expense Summary
             val filteredAmount = calculateFilteredAmount(expenses, selectedFilter)
 
             Row(
@@ -100,7 +133,6 @@ fun ExpenseTrackerApp(navController: NavController, viewModel: ExpenseViewModel 
                     amount = filteredAmount,
                     modifier = Modifier.weight(1f)
                 )
-                // In your Row for Daily Expense
                 ExpenseCard(
                     title = "Daily Expense",
                     amount = expenses.filter {
@@ -108,10 +140,10 @@ fun ExpenseTrackerApp(navController: NavController, viewModel: ExpenseViewModel 
                     }.sumOf { it.amount },
                     modifier = Modifier.weight(1f)
                 )
-
             }
 
-            ExpenseChart(expenses, onChartClick = { navController.navigate("details") })
+            // Chart Overview
+            ExpenseChart(expenses, onViewDetailsClick = { navController.navigate("details") })
 
             if (expenses.isNotEmpty()) {
                 val categoryData = getCategoryWiseData(expenses)
@@ -144,14 +176,13 @@ fun ExpenseTrackerApp(navController: NavController, viewModel: ExpenseViewModel 
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Expense by Category",
+                            text = "Expense Chart",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 12.dp)
                         )
 
-                        // Centered PieChart
                         Spacer(modifier = Modifier.height(16.dp))
 
                         PieChart(
@@ -160,11 +191,8 @@ fun ExpenseTrackerApp(navController: NavController, viewModel: ExpenseViewModel 
                             chartBarWidth = 25.dp,
                             animDuration = 1200
                         )
-
-
                     }
                 }
-
             }
         }
     }
@@ -180,6 +208,7 @@ fun ExpenseTrackerApp(navController: NavController, viewModel: ExpenseViewModel 
     }
 }
 
+
 fun calculateFilteredAmount(expenses: List<Expense>, filter: String): Double {
     val now = Calendar.getInstance()
     return when (filter) {
@@ -187,21 +216,25 @@ fun calculateFilteredAmount(expenses: List<Expense>, filter: String): Double {
             val oneDayAgo = System.currentTimeMillis() - 86400000
             expenses.filter { it.date.time >= oneDayAgo }.sumOf { it.amount }
         }
+
         "Week" -> {
             val oneWeekAgo = System.currentTimeMillis() - 7 * 86400000
             expenses.filter { it.date.time >= oneWeekAgo }.sumOf { it.amount }
         }
+
         "Month" -> {
             now.set(Calendar.DAY_OF_MONTH, 1)
             val monthStart = now.timeInMillis
             expenses.filter { it.date.time >= monthStart }.sumOf { it.amount }
         }
+
         "Year" -> {
             now.set(Calendar.MONTH, 0)
             now.set(Calendar.DAY_OF_MONTH, 1)
             val yearStart = now.timeInMillis
             expenses.filter { it.date.time >= yearStart }.sumOf { it.amount }
         }
+
         else -> expenses.sumOf { it.amount }
     }
 }
