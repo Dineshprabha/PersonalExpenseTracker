@@ -15,12 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.dinesh.personalexpensetracker.presentation.viewmodel.ExpenseViewModel
 import java.util.*
 import com.dinesh.personalexpensetracker.data.model.Expense
 
 @Composable
-fun ExpenseTrackerApp(viewModel: ExpenseViewModel = hiltViewModel()) {
+fun ExpenseTrackerApp(navController: NavController, viewModel: ExpenseViewModel = hiltViewModel()) {
     val expenses by viewModel.expenses.collectAsState()
     val showDialog = remember { mutableStateOf(false) }
 
@@ -34,7 +35,8 @@ fun ExpenseTrackerApp(viewModel: ExpenseViewModel = hiltViewModel()) {
             FloatingActionButton(
                 onClick = { showDialog.value = true },
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.padding(16.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
@@ -98,16 +100,18 @@ fun ExpenseTrackerApp(viewModel: ExpenseViewModel = hiltViewModel()) {
                     amount = filteredAmount,
                     modifier = Modifier.weight(1f)
                 )
+                // In your Row for Daily Expense
                 ExpenseCard(
                     title = "Daily Expense",
                     amount = expenses.filter {
-                        it.timestamp > System.currentTimeMillis() - 86400000
+                        it.date.time > System.currentTimeMillis() - 86400000
                     }.sumOf { it.amount },
                     modifier = Modifier.weight(1f)
                 )
+
             }
 
-            ExpenseChart(expenses)
+            ExpenseChart(expenses, onChartClick = { navController.navigate("details") })
 
             if (expenses.isNotEmpty()) {
                 val categoryData = getCategoryWiseData(expenses)
@@ -181,26 +185,27 @@ fun calculateFilteredAmount(expenses: List<Expense>, filter: String): Double {
     return when (filter) {
         "Day" -> {
             val oneDayAgo = System.currentTimeMillis() - 86400000
-            expenses.filter { it.timestamp >= oneDayAgo }.sumOf { it.amount }
+            expenses.filter { it.date.time >= oneDayAgo }.sumOf { it.amount }
         }
         "Week" -> {
             val oneWeekAgo = System.currentTimeMillis() - 7 * 86400000
-            expenses.filter { it.timestamp >= oneWeekAgo }.sumOf { it.amount }
+            expenses.filter { it.date.time >= oneWeekAgo }.sumOf { it.amount }
         }
         "Month" -> {
             now.set(Calendar.DAY_OF_MONTH, 1)
             val monthStart = now.timeInMillis
-            expenses.filter { it.timestamp >= monthStart }.sumOf { it.amount }
+            expenses.filter { it.date.time >= monthStart }.sumOf { it.amount }
         }
         "Year" -> {
             now.set(Calendar.MONTH, 0)
             now.set(Calendar.DAY_OF_MONTH, 1)
             val yearStart = now.timeInMillis
-            expenses.filter { it.timestamp >= yearStart }.sumOf { it.amount }
+            expenses.filter { it.date.time >= yearStart }.sumOf { it.amount }
         }
         else -> expenses.sumOf { it.amount }
     }
 }
+
 
 fun getCategoryWiseData(expenses: List<Expense>): Map<String, Double> {
     return expenses

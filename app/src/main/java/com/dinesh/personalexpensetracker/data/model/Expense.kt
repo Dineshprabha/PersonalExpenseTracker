@@ -2,6 +2,8 @@ package com.dinesh.personalexpensetracker.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDate
+import java.util.Date
 
 @Entity
 data class Expense(
@@ -9,5 +11,5 @@ data class Expense(
     val amount: Double,
     val category: String,
     val description: String,
-    val timestamp: Long = System.currentTimeMillis()
+    val date: Date
 )

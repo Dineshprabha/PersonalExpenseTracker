@@ -13,6 +13,6 @@ interface ExpenseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExpense(expense: Expense)
 
-    @Query("SELECT * FROM Expense ORDER BY timestamp DESC")
+    @Query("SELECT * FROM Expense ORDER BY date DESC")
     fun getAllExpenses(): Flow<List<Expense>>
 }

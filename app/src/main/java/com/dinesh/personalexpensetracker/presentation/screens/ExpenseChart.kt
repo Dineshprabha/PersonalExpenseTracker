@@ -1,5 +1,6 @@
 package com.dinesh.personalexpensetracker.presentation.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,11 +16,13 @@ import androidx.compose.ui.unit.dp
 import com.dinesh.personalexpensetracker.data.model.Expense
 
 @Composable
-fun ExpenseChart(expenses: List<Expense>) {
+fun ExpenseChart(expenses: List<Expense>, onChartClick: () -> Unit) {
     Card(
         Modifier
             .fillMaxWidth()
-            .height(200.dp)) {
+            .height(200.dp)
+            .clickable { onChartClick() }
+    ) {
         val grouped = expenses.groupBy { it.category }
         Column(Modifier.padding(16.dp)) {
             Text("Expenses by Category", fontWeight = FontWeight.Bold)
