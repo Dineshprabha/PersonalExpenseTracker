@@ -124,9 +124,14 @@ PersonalExpenseTracker/
 │
 ├── presentation/
 │   ├── screens/
-│   │   ├── HomeScreen.kt
+│   │   ├── ExpenseTrackerApp.kt
 │   │   ├── AddExpenseBottomSheet.kt
-│   │   └── ExpenseItem.kt
+│   │   ├── ExpenseItem.kt
+│   │   ├── DateSelector.kt	
+│   │   ├── ExpenseCard.kt
+│   │   ├── ExpenseChart.kt
+│   │   ├── ExpenseDetailScreen.kt
+│   │   └── PieChart.kt
 │   └── viewmodel/
 │       └── ExpenseViewModel.kt
 │
@@ -140,7 +145,7 @@ PersonalExpenseTracker/
 │       └── Typography.kt
 │
 ├── MainActivity.kt
-└── App.kt
+└── PersonalExpenseTrackerApplication.kt
 
 
 ---
